@@ -11,8 +11,8 @@ const getProducts = async (req, res) => {
 //Get selected product at once
 const getProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-    const product = await Product.findById(id);
+    const productId = req.params.id;
+    const product = await Product.findOne({ referenceId: productId });
     res.status(200).json(product);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -21,6 +21,12 @@ const getProduct = async (req, res) => {
 // Post or create a product at once
 const createProduct = async (req, res) => {
   try {
+    const productId = req.params.id;
+    const productdata = await Product.findOne({ referenceId: productId });
+    if (productdata) {
+      res.status(400).json({ message: "Already having same id" });
+    }
+
     const product = await Product.create(req.body);
     res.status(200).json(product);
   } catch (error) {
@@ -30,12 +36,15 @@ const createProduct = async (req, res) => {
 // Put or update a product at once
 const updateProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-    const product = await Product.findByIdAndUpdate(id, req.body);
+    const productId = req.params.id;
+    const product = await Product.findByIdAndUpdate(
+      { referenceId: productId },
+      req.body
+    );
     if (!product) {
       res.status(404).json({ message: "Data not found" });
     }
-    const updateProduct = await Product.findById(id);
+    const updateProduct = await Product.findById(product._id);
     res.status(200).json(updateProduct);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -44,16 +53,21 @@ const updateProduct = async (req, res) => {
 // Delete a product at once
 const deleteProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-    const product = await Product.findByIdDelete(id);
-    if (!product) {
-      res.status(404).json({ message: error.message });
+    const productId = req.params.id;
+    const productdata = await Product.findOne({ referenceId: productId });
+    if (!productdata) {
+      return res.status(404).json({ message: "Product not found" });
     }
-    res.status(200).json({ message: "Deleted sucessfully" });
+    const product = await Product.findByIdAndDelete(productdata._id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.status(200).json({ message: "Deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 module.exports = {
   getProducts,
   getProduct,
