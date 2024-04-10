@@ -21,18 +21,13 @@ const getProduct = async (req, res) => {
 // Post or create a product at once
 const createProduct = async (req, res) => {
   try {
-    const productId = req.params.id;
-    const productdata = await Product.findOne({ referenceId: productId });
-    if (productdata) {
-      res.status(400).json({ message: "Already having same id" });
-    }
-
     const product = await Product.create(req.body);
     res.status(200).json(product);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 // Put or update a product at once
 const updateProduct = async (req, res) => {
   try {

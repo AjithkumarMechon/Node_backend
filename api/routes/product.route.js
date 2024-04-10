@@ -7,7 +7,11 @@ const {
   updateProduct,
   deleteProduct,
 } = require("../Controller/product.controller.js");
-const { signupUser, login } = require("../Controller/user.controller.js");
+const {
+  signupUser,
+  login,
+  update,
+} = require("../Controller/user.controller.js");
 //products
 router.get("/products/", getProducts);
 router.get("/products/:id", getProduct);
@@ -17,6 +21,7 @@ router.delete("/products/:id", deleteProduct);
 //users
 router.post("/users/signup/", signupUser);
 router.post("/users/login/", login);
+router.put("/users/update/", update);
 //blob
 
 module.exports = router;

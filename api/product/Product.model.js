@@ -9,7 +9,6 @@ const ProductSchema = new mongoose.Schema(
     referenceId: {
       type: Number,
       unique: true,
-      default: null,
     },
     details: [
       {
@@ -38,18 +37,21 @@ const ProductSchema = new mongoose.Schema(
 
 ProductSchema.pre("save", async function (next) {
   try {
-    if (!this.referenceId) {
+    if (this.isNew && !this.referenceId) {
       const lastProduct = await this.constructor.findOne(
         {},
         {},
         { sort: { referenceId: -1 } }
       );
-      this.referenceId = lastProduct ? lastProduct.referenceId + 1 : 1;
+      this.referenceId = lastProduct
+        ? parseInt(lastProduct.referenceId) + 1
+        : 1;
     }
     next();
   } catch (error) {
     next(error);
   }
 });
-const Product = mongoose.model("Product", ProductSchema);
+
+const Product = mongoose.model("Products", ProductSchema);
 module.exports = Product;

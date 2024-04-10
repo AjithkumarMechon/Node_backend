@@ -49,7 +49,33 @@ const login = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+const update = async (req, res) => {
+  const { name, email, password } = req.body;
+  let existingUser;
+  try {
+    if (email) {
+      existingUser = await User.findOneAndUpdate({ email: email }, req.body, {
+        new: true,
+      });
+    } else {
+      existingUser = await User.findOneAndUpdate({ name: name }, req.body, {
+        new: true,
+      });
+    }
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const hashedPassword = bcrypt.hashSync(password);
+    existingUser.password = hashedPassword;
+    return res.status(200).json(existingUser);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: existingUser });
+  }
+};
+
 module.exports = {
   signupUser,
   login,
+  update,
 };
